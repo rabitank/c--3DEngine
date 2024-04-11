@@ -1,0 +1,4 @@
+### gal engin -> lib
+
+file(GLOB_RECURSE engine_includes ./src/*.h  )
+file(GLOB_RECURSE engine_src ./src/*.cpp )
