@@ -84,6 +84,8 @@ void Game::ProcessInput()
 
 
     m_paddleDir =0;
+    m_paddleDir_2 =0;
+
     if(state[SDL_SCANCODE_W])
     {
         m_paddleDir = -1;
@@ -92,13 +94,19 @@ void Game::ProcessInput()
     { 
         m_paddleDir = 1;
     }
+    if(state[SDL_SCANCODE_I])
+    {
+        m_paddleDir_2 = -1;
+    }
+    if(state[SDL_SCANCODE_K])
+    { 
+        m_paddleDir_2 = 1;
+    }
 
 
 }
 
 
-static constexpr int PaddleLen = 120;
-static constexpr int thickness  = 10;
 
 void Game::UpdateGame()
 {
@@ -123,6 +131,20 @@ void Game::UpdateGame()
             m_paddlePos.y = 768.f - ( PaddleLen / 2 + thickness);
         }
     }
+    
+    if(m_paddleDir_2!=0)
+    {
+        m_paddlePos_2.y += m_paddleDir_2 * deltaTime * 300.f;
+        if(m_paddlePos_2.y < (PaddleLen / 2 + thickness))
+        {
+            m_paddlePos_2.y = PaddleLen / 2 + thickness;
+        }
+        if(m_paddlePos_2.y > (768.f - ( PaddleLen / 2 + thickness)))
+        {
+            m_paddlePos_2.y = 768.f - ( PaddleLen / 2 + thickness);
+        }
+    }
+
 
     {
         m_ballPos.x += m_ballVec.x*deltaTime;
@@ -133,11 +155,11 @@ void Game::UpdateGame()
         {
             m_ballVec.x*=-1;
         }
-        /// collision with walls        
-        if(m_ballPos.x >= 1024 - thickness && m_ballVec.x > 0)
+        if(m_ballPos.x >= 1024 - thickness && ( (m_ballPos.y>= m_paddlePos_2.y - PaddleLen/2 ) && (m_ballPos.y <= m_paddlePos_2.y + PaddleLen/2 ) ) && m_ballVec.x>0)
         {
             m_ballVec.x*=-1;
         }
+        /// collision with walls        
         if(m_ballPos.y >= 768 - thickness && m_ballVec.y > 0 )
         {
             m_ballVec.y*=-1;
@@ -197,19 +219,21 @@ void Game::GenerateOutput()
         thickness,
         PaddleLen,
     };
+    SDL_Rect paddle_2{
+        static_cast<int> (m_paddlePos_2.x - thickness/2 ),
+        static_cast<int> (m_paddlePos_2.y - PaddleLen/2 ), 
+        thickness,
+        PaddleLen,
+    };
 
 
     SDL_RenderFillRect(m_renderer,&wall);
     wall.y = 768-thickness;
     SDL_RenderFillRect(m_renderer,&wall);
-    wall.y = 0;
-    wall.x = 1024-thickness;
-    wall.w = thickness;
-    wall.h = 1024;
-    SDL_RenderFillRect(m_renderer,&wall);
     
     SDL_RenderFillRect(m_renderer,&ball);
     SDL_RenderFillRect(m_renderer,&paddle);
+    SDL_RenderFillRect(m_renderer,&paddle_2);
 
     SDL_RenderPresent(m_renderer); // backend buffer show(swap)
 
