@@ -1,0 +1,12 @@
+{
+    "cmake.debugConfig": {
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "args": [
+                "-DFS_DEBUG",
+                "-DFS_PLATFORM_WINDOWS"
+            ]
+    },
+    "C_Cpp.intelliSenseEngine": "default",
+}
