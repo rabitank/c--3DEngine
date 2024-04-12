@@ -9,4 +9,8 @@
             ]
     },
     "C_Cpp.intelliSenseEngine": "default",
+    "files.associations": {
+        "*.cpp": "cpp",
+        "cstdint": "cpp"
+    },
 }
