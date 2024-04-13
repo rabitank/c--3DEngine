@@ -6,6 +6,7 @@
 #include "animSpriteComponent.h"
 #include "Ship.h"
 
+#include "tileMapComponent.h"
 
 
 bool Game::Initialize()
@@ -137,7 +138,7 @@ void Game::LoadData()
     temp->SetPosition({512.f,384.f});
 
     // bg 1
-    BGSpriteComponent* bg = new BGSpriteComponent(temp);
+    BGSpriteComponent* bg = new BGSpriteComponent(temp,10);
     bg->SetScreenSize({1024.f,768.f});
     std::vector<SDL_Texture*>  bgtexs={
         GetTexture("Assets/Farback01.png"),
@@ -155,6 +156,13 @@ void Game::LoadData()
     };
     bg->SetBGTexture(bgtexs);
     bg->SetScrollSpeed(-200.f);
+
+    // tile map
+    temp = new Actor(this);
+    TileMapComponent* tmap = new TileMapComponent(temp,60);
+    
+    tmap->SetTileTexture(GetTexture("Assets/Tiles.png"),{8,24});
+    tmap->SetTilesMap("Assets/MapLayer2.csv");
 
 }
 

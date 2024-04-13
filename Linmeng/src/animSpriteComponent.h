@@ -14,17 +14,21 @@ class AnimSpriteComponent:public SpriteComponent
     float m_animFps;
     float m_curFrame;
 
+    bool m_loop{true};
+
 public:
-    AnimSpriteComponent(class Actor* owner , int updateOrder = 100):
-    SpriteComponent(owner,updateOrder){};
+    AnimSpriteComponent(class Actor* owner , int DrawOrder = 100):
+    SpriteComponent(owner,DrawOrder){};
 
     virtual void Update(float deltatime) override;
 
     void SetAnimTextures(const std::vector<class SDL_Texture*>& textures );
 
     float GetAnimFPS() const{ return m_animFps; };
-    void SetAnimFPS(float fps ) {  m_animFps = fps; };
+    AnimSpriteComponent& SetAnimFPS(float fps ) {  m_animFps = fps;return *this; };
     
+    bool GetLoop() const { return m_loop;}
+    AnimSpriteComponent& SetLoop(bool loop) {m_loop = loop;return *this;};
 
 
 };

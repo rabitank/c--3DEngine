@@ -15,6 +15,7 @@ Ship::Ship(Game *game)
     textures.push_back(game->GetTexture("Assets/Ship04.png"));
     
     asc->SetAnimTextures(textures);
+    asc->SetLoop(true);
     asc->SetAnimFPS(20.f);
 
 }

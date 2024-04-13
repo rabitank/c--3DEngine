@@ -13,7 +13,7 @@ void BGSpriteComponent::Update(float deltatime)
         if(i.offset.x < -m_screenSize.x) 
         {
             // 将该图移到队列右边
-            i.offset.x += ((m_BGTexture.size() - 1) * m_screenSize.x) -1; 
+            i.offset.x += ((m_BGTexture.size() ) * m_screenSize.x) -1; 
         }
     }
 

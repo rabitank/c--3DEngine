@@ -6,13 +6,21 @@
 void AnimSpriteComponent::Update(float deltatime)
 {
     SpriteComponent::Update(deltatime);
+
     if(m_animTextures.size()>0)
     {
         m_curFrame += m_animFps*deltatime;
         
-        while(m_curFrame > m_animTextures.size())
+        if(m_loop)
         {
-            m_curFrame -= m_animTextures.size();
+            while(m_curFrame >= m_animTextures.size())
+            {
+                m_curFrame -= m_animTextures.size();
+            }
+
+        }
+        else{
+            if(m_curFrame >= m_animTextures.size()) m_curFrame = m_animTextures.size()-1;
         }
 
         SetTexture(m_animTextures[static_cast<int>( m_curFrame)]);
