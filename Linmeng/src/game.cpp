@@ -131,15 +131,15 @@ SDL_Texture *Game::GetTexture(const std::string &filepath)
 void Game::LoadData()
 {
     m_ship = new Ship(this);
-    m_ship->SetPosition({100.f,384.f});
+    m_ship->SetPosition(Vector2(100.f,384.f));
     m_ship->SetScale(1.5f);
 
     Actor* temp = new Actor(this);
-    temp->SetPosition({512.f,384.f});
+    temp->SetPosition(Vector2(512.f,384.f));
 
     // bg 1
     BGSpriteComponent* bg = new BGSpriteComponent(temp,10);
-    bg->SetScreenSize({1024.f,768.f});
+    bg->SetScreenSize(Vector2(1024.f,768.f));
     std::vector<SDL_Texture*>  bgtexs={
         GetTexture("Assets/Farback01.png"),
 		GetTexture("Assets/Farback02.png")
@@ -149,7 +149,7 @@ void Game::LoadData()
 
     // bg 2
     bg = new BGSpriteComponent(temp,50);
-    bg->SetScreenSize({1024.f,768.f});
+    bg->SetScreenSize(Vector2(1024.f,768.f));
     bgtexs={
         GetTexture("Assets/Stars.png"),
 		GetTexture("Assets/Stars.png")
@@ -161,7 +161,7 @@ void Game::LoadData()
     temp = new Actor(this);
     TileMapComponent* tmap = new TileMapComponent(temp,60);
     
-    tmap->SetTileTexture(GetTexture("Assets/Tiles.png"),{8,24});
+    tmap->SetTileTexture(GetTexture("Assets/Tiles.png"),Vector2(8.f,24.f));
     tmap->SetTilesMap("Assets/MapLayer2.csv");
 
 }

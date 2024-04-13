@@ -43,7 +43,7 @@ void TileMapComponent::SetTileTexture(SDL_Texture *texture, Vector2 size)
 {
     m_tileTexture.tex = texture;
     m_tileTexture.size = size;
-    
+
     SetTexture(texture);
 }
 
@@ -86,7 +86,7 @@ void TileMapComponent::UpdateCell_()
 
 TileMapComponent::TileMapComponent(Actor *owner, int DrawOrder)
 :   SpriteComponent(owner,DrawOrder),
-    m_tileTexture{nullptr,{1,1}},
+    m_tileTexture{nullptr,Vector2(1.f,1.f)},
     m_tilesMap{{}},
     m_cellSize{0,0}
 {

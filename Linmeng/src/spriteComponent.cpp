@@ -27,7 +27,7 @@ void SpriteComponent::Draw(SDL_Renderer *renderer)
                 
         SDL_RenderCopyEx(
             renderer,m_texture,nullptr,&r,
-            -math::Todegree(m_owner->GetRotation()),
+            -Math::ToDegrees(m_owner->GetRotation()),
             nullptr, // defual -> rot center of Texture
             SDL_FLIP_NONE
         );

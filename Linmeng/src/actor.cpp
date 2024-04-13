@@ -4,7 +4,7 @@
 #include <algorithm>
 
 Actor::Actor(Game *game)
-:m_state(eActive),m_position({0.f,0.f}),m_scale(1.f),m_rotation(0.f),m_game(game)
+:m_state(eActive),m_position(Vector2(0.f,0.f)),m_scale(1.f),m_rotation(0.f),m_game(game)
 {
     m_game->AddActor(this);
 }
