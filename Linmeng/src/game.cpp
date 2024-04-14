@@ -319,7 +319,7 @@ void Game::GenerateOutput()
     
     for(auto i: m_sprites)
     {
-        i->Draw(m_renderer);
+        if(i->GetOwner().GetState() == Actor::eActive ) i->Draw(m_renderer);
     }
 
     SDL_RenderPresent(m_renderer); // backend buffer show(swap)

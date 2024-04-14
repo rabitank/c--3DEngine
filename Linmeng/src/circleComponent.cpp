@@ -8,7 +8,7 @@ CircleComponent::CircleComponent(Actor* onwer)
     
 }
 
-const Vector2& CircleComponent::GetCenter() const 
+Vector2 CircleComponent::GetCenter() const 
 {
     return m_owner->GetPosition(); 
 }

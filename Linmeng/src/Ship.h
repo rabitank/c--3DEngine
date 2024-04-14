@@ -9,8 +9,13 @@ private:
     float m_DownSpeed ;
 
     float m_laserCoolDown{0.f};
+
+    class CircleComponent* m_circle;
+
+    float m_rebornCoolDown{0.f};
+
 public:
-    Ship(Game* game);
+    Ship(class Game* game);
 
     void UpdateActor(float deltatiem) override;
     void ActorProcess(const uint8_t* states) override;
@@ -18,4 +23,5 @@ public:
     float GetRightSpeed() const {return m_RightSpeed;};
     float GetDownSpeed() const {return m_DownSpeed;};
 
+    const CircleComponent& GetCircle() const {return *m_circle;}
 };

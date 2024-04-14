@@ -58,7 +58,7 @@ public:
     float GetRotation() const { return m_rotation;};
     Actor& SetRotation(float rot) { m_rotation = rot  ;return *this;};
     
-    const Vector2& GetPosition() const { return m_position;};
+    Vector2 GetPosition() const { return m_position;};
 
     Actor& SetPosition(Vector2 pos)  { m_position = pos ; return *this;};
 

@@ -5,6 +5,7 @@
 #include "inputComponent.h"
 #include "circleComponent.h"
 #include "laser.h"
+#include "asteroid.h"
 
 Ship::Ship(Game *game)
 :Actor(game) , m_RightSpeed(0.f),m_DownSpeed(0.f)
@@ -22,27 +23,39 @@ Ship::Ship(Game *game)
     
     ic->SetMaxRotationSpeed(10.f).SetMaxforwardSpeed(250.f);
 
-    auto* cc = new CircleComponent(this);
-    cc->SetRadius(40.f);
+    m_circle = new CircleComponent(this);
+    m_circle->SetRadius(40.f);
     
 }
 
 void Ship::UpdateActor(float deltatiem)
 {
     m_laserCoolDown -= deltatiem;
-
-
-    auto pos = GetPosition();
-    pos.x += deltatiem * m_RightSpeed;
-    pos.y += deltatiem * m_DownSpeed;
-
-    if(pos.x < 25.f){pos.x = 25.f;}
-    else if(pos.x > 1024.f- 25.f){pos.x = 1024.f- 25.f;}
     
-    if(pos.y < 25.f){pos.y = 25.f;}
-    else if(pos.y > 768.f - 25.f ){pos.y = 768.f-25.f;};
-    
-    SetPosition(pos);
+
+    if(GetState()== eActive)
+    {
+        for(auto i : GetGame()->GetAsteroids())
+        {
+            if(Intersect(GetCircle() , i->GetCircle() ))
+            {
+                SetState(ePaused);
+                SetPosition(Vector2(1024.f/2,768.f/2));
+                m_rebornCoolDown = 2.f;
+                
+            }
+        }
+    }
+    else if(GetState()==ePaused)
+    {
+        m_rebornCoolDown -= deltatiem;
+        if(m_rebornCoolDown<=0.f)
+        {
+            SetState(eActive);
+            ///@attention this set reborn CoolDown time;
+        }
+    }
+
 }
 
 void Ship::ActorProcess(const uint8_t* states)

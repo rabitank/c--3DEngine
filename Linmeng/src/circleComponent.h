@@ -1,6 +1,7 @@
 #pragma once
 
 #include "component.h"
+#include "math.h"
 
 class CircleComponent:public Component
 {
@@ -13,7 +14,7 @@ public:
     CircleComponent& SetRadius(float radius) {m_radius = radius; return *this;}
     float GetRaius() const {return m_radius;}
     
-    const class Vector2& GetCenter() const ;
+    Vector2 GetCenter() const ;
 
 };
 

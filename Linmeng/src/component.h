@@ -17,6 +17,7 @@ public:
     virtual void ProcessInput(const uint8_t* states) {};
 
     int GetUpdateOrder() const { return m_updateOrder;}
+    const Actor& GetOwner() const { return *m_owner;}
 
 protected:
 

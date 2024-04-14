@@ -8,7 +8,7 @@ class Asteroid : public Actor
 
 public:
     Asteroid(class Game* ins);
-
+    ~Asteroid();
     const CircleComponent& GetCircle() const { return *m_circle;}
     
 

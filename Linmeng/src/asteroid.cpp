@@ -30,3 +30,8 @@ Asteroid::Asteroid(class Game* ins)
     
 }
 
+Asteroid::~Asteroid()
+{
+    GetGame()->RemoveAsteroid(this);
+}
+
