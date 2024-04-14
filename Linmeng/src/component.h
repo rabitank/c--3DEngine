@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SDL.h"
 
 class Component
 {
@@ -14,7 +14,8 @@ public:
     virtual ~Component();
 
     virtual void Update(float deltatime);
-    
+    virtual void ProcessInput(const uint8_t* states) {};
+
     int GetUpdateOrder() const { return m_updateOrder;}
 
 protected:

@@ -1,13 +1,11 @@
 #include "animSpriteComponent.h"
 
 
-
-
 void AnimSpriteComponent::Update(float deltatime)
 {
     SpriteComponent::Update(deltatime);
 
-    if(m_animTextures.size()>0)
+    if(!m_animTextures.empty())
     {
         m_curFrame += m_animFps*deltatime;
         

@@ -1,12 +1,12 @@
 #include "game.h"
+#include <algorithm>
 
 #include "SDL_image.h"
 
 #include "BGSpriteComponent.h"
 #include "animSpriteComponent.h"
 #include "Ship.h"
-
-#include "tileMapComponent.h"
+#include "asteroid.h"
 
 
 bool Game::Initialize()
@@ -137,8 +137,15 @@ void Game::LoadData()
     Actor* temp = new Actor(this);
     temp->SetPosition(Vector2(512.f,384.f));
 
+
+    constexpr int asteroidnum = 20;
+    for(int i = 0; i<asteroidnum;i++)
+    {
+        new Asteroid(this);
+    }
+
     // bg 1
-    BGSpriteComponent* bg = new BGSpriteComponent(temp,10);
+    auto* bg = new BGSpriteComponent(temp,10);
     bg->SetScreenSize(Vector2(1024.f,768.f));
     std::vector<SDL_Texture*>  bgtexs={
         GetTexture("Assets/Farback01.png"),
@@ -156,13 +163,6 @@ void Game::LoadData()
     };
     bg->SetBGTexture(bgtexs);
     bg->SetScrollSpeed(-200.f);
-
-    // tile map
-    temp = new Actor(this);
-    TileMapComponent* tmap = new TileMapComponent(temp,60);
-    
-    tmap->SetTileTexture(GetTexture("Assets/Tiles.png"),Vector2(8.f,24.f));
-    tmap->SetTilesMap("Assets/MapLayer2.csv");
 
 }
 
@@ -224,6 +224,16 @@ void Game::RemoveSprite(SpriteComponent *sprite)
     m_sprites.erase(it);
 }
 
+Game& Game::RemoveAsteroid(Asteroid* as)
+{
+    auto it = std::find(m_asteroids.begin() , m_asteroids.end(),as);
+    if(it != m_asteroids.end())
+    {
+        m_asteroids.erase(it);
+    }
+    return *this;
+}
+
 void Game::ProcessInput()
 {
     SDL_Event event;
@@ -244,11 +254,17 @@ void Game::ProcessInput()
         m_IsRunning = false;
     }
 
-    m_ship->ProccessKeyboard(state);
+    {
+        m_UpdatingActors = true;
+        for(auto i: m_actors)
+        {
+            i->ProcessInput(state);
+        }
+        m_UpdatingActors = false;
+    }
 
 
 }
-
 
 
 void Game::UpdateGame()
@@ -287,6 +303,7 @@ void Game::UpdateGame()
 
         for(auto i : deadActors)
         {
+            // while ~Actor. the pointer would remove from m_actors;
             delete i;
         }
     }

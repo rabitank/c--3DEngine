@@ -1,8 +1,8 @@
 #pragma once
 
 #include "spriteComponent.h"
-#include "vector.h"
 #include <vector>
+#include "math.h"
 
 class BGSpriteComponent:public SpriteComponent
 {
@@ -33,6 +33,6 @@ public:
     BGSpriteComponent& SetBGTexture(const std::vector<SDL_Texture*>& textures);
     BGSpriteComponent& SetScrollSpeed(float speed) { m_scrollSpeed = speed; return *this;};
     
-    float GetScrollSpeed() { return m_scrollSpeed;};
+    float GetScrollSpeed() const { return m_scrollSpeed;};
 
 };

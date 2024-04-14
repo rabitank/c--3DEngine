@@ -33,6 +33,10 @@ public:
     void AddSprite(class SpriteComponent* sprite);
     void RemoveSprite(class SpriteComponent* sprite);
 
+    std::vector<class Asteroid* > GetAsteroids() {return m_asteroids;}
+    Game& AddAsteroid(Asteroid* as) { m_asteroids.push_back(as) ;return *this;}
+    Game& RemoveAsteroid(Asteroid* as);
+
 private:
     /// three part in Loop
     void ProcessInput() ;
@@ -53,8 +57,11 @@ private:
     /// @brief  game update them in one frame;
     std::vector<class Actor* > m_actors;
     /// @brief game temp sort the actors created when update game. and add them to actors after update;
-    std::vector<class Actor* > m_pendingActors;
+    std::vector<Actor* > m_pendingActors;
     /// @brief is game updating actors?
+
+    std::vector<Asteroid*> m_asteroids;
+
     bool m_UpdatingActors{false};
 
     class Ship* m_ship;

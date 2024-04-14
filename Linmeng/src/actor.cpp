@@ -41,6 +41,19 @@ void Actor::UpdateComponents(float deltatime)
 void Actor::UpdateActor(float deltatime)
 {}
 
+void Actor::ProcessInput(const uint8_t* states)
+{
+    if(m_state == eActive)
+    {
+        for(auto& c:m_components )
+        {
+            c->ProcessInput(states);
+        }
+        ActorProcess(states);
+    }
+    
+}
+
 Actor &Actor::AddComponents(Component *comp)
 {
     m_components.push_back(comp);
@@ -55,4 +68,11 @@ Actor &Actor::RemonveComponent(Component *comp)
         m_components.erase(i);
     }
     return *this;
+}
+
+
+Vector2 Actor::GetForward() const
+{
+    return Vector2(Math::Cos(m_rotation),-Math::Sin(m_rotation) );
+    
 }

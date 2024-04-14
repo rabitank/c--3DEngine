@@ -7,11 +7,14 @@ class Ship:public Actor{
 private:
     float m_RightSpeed;
     float m_DownSpeed ;
+
+    float m_laserCoolDown{0.f};
 public:
     Ship(Game* game);
 
     void UpdateActor(float deltatiem) override;
-    void ProccessKeyboard( const uint8_t *state);
+    void ActorProcess(const uint8_t* states) override;
+
     float GetRightSpeed() const {return m_RightSpeed;};
     float GetDownSpeed() const {return m_DownSpeed;};
 
