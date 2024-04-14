@@ -22,12 +22,16 @@ Actor::~Actor()
 
 void Actor::Update(float deltatime)
 {
-    if( m_state == eActive)
+    
+    if( m_state == eActive || m_state == ePaused) // TODO: remove ePaused case
     {
         UpdateComponents(deltatime);
         UpdateActor(deltatime);
     }
+
+
 }
+
 
 void Actor::UpdateComponents(float deltatime)
 {
