@@ -4,13 +4,16 @@
 #include "vector.h"
 
 
-static constexpr int PaddleLen = 120;
-static constexpr int thickness  = 10;
+
+extern int GAME_Width  ;
+extern int GAME_Height ;
+
+
 
 class Game
 {
 public:
-    Game(){};
+    Game();
     /// init 
     bool Initialize();
 
@@ -26,16 +29,11 @@ public:
     
     void LoadData();
     void UnloadData();
-
-    /// @brief GetTexture Call LoadTexture and store in map;
-    class SDL_Texture* GetTexture(const std::string& filepath);
     
-    void AddSprite(class SpriteComponent* sprite);
-    void RemoveSprite(class SpriteComponent* sprite);
+    class Renderer* GetRenderer() {return m_renderer;}
+    class AudioSystem* GetAudioSystem() {return m_audioSystem;}
 
-    std::vector<class Asteroid* > GetAsteroids() {return m_asteroids;}
-    Game& AddAsteroid(Asteroid* as) { m_asteroids.push_back(as) ;return *this;}
-    Game& RemoveAsteroid(Asteroid* as);
+
 
 private:
     /// three part in Loop
@@ -43,16 +41,15 @@ private:
     void UpdateGame()   ;
     void GenerateOutput();
 
-    SDL_Texture* LoadTexture(const std::string& path);
 
     /// Window created by SDL 😘
-    SDL_Window* m_window{nullptr};    
-    SDL_Renderer* m_renderer{nullptr};
+    SDL_Window* m_window;    
+    
+    class Renderer* m_renderer;
+    class AudioSystem* m_audioSystem;
 
     uint32_t m_ticksCount{0};
     bool m_IsRunning{true};
-
-    std::vector<class SpriteComponent*> m_sprites;
 
     /// @brief  game update them in one frame;
     std::vector<class Actor* > m_actors;
@@ -60,13 +57,10 @@ private:
     std::vector<Actor* > m_pendingActors;
     /// @brief is game updating actors?
 
-    std::vector<Asteroid*> m_asteroids;
 
     bool m_UpdatingActors{false};
 
-    class Ship* m_ship;
-
-    std::unordered_map<std::string , SDL_Texture*> m_textures;
+    class CameraActor* m_camera{nullptr};
 
 
 };

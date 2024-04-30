@@ -1,58 +1,62 @@
 #include "game.h"
 #include <algorithm>
 
-#include "SDL_image.h"
+#include "glad/glad.h"
 
 #include "BGSpriteComponent.h"
 #include "animSpriteComponent.h"
-#include "Ship.h"
-#include "asteroid.h"
+#include "cameraActor.h"
+#include "renderer.h"
+#include "meshComponent.h"
+#include "planeActor.h"
+#include "texture.h"
+#include "audioSystem.h" 
 
+int GAME_Width = 1024;
+int GAME_Height = 768;
+
+
+Game::Game()
+    :m_window(nullptr),
+    m_renderer(nullptr),
+    m_audioSystem(nullptr)
+{
+}
 
 bool Game::Initialize()
 {
     // Sys Backend Init
     {
-        if( SDL_Init(SDL_INIT_VIDEO )!=0) // 与sdl_quit 对应
+        if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO )!=0) // 与sdl_quit 对应
         {
             SDL_Log("sdl video init failed: %s", SDL_GetError());
             return false;
         };
-
-        if( !IMG_Init(IMG_INIT_PNG))
-        {
-            SDL_Log("sdl imge init failed: %s" , IMG_GetError());
-            return false;
-        }
     }
 
-    m_window = SDL_CreateWindow( 
-        "Linmeng Chapter 1",
-        SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, 
-        1024, // (int)props.Width, 
-        768,  // (int)props.Height,
-        SDL_WINDOW_SHOWN |SDL_WINDOW_RESIZABLE);
-    if(!m_window)
+    m_renderer = new Renderer(this);
+    if( !m_renderer->Initialize(1024.f,768.f))
     {
-        SDL_Log("SDL Window Create Failed: %S" , SDL_GetError());
+        SDL_Log("Failed to Init renderer");
+        delete m_renderer;
+        m_renderer = nullptr;
+        return false;
+    };
+
+    m_audioSystem = new AudioSystem(this);
+    if(!m_audioSystem->Initialize())
+    {
+        SDL_Log("Failed to Init AudioSystem");
+        delete m_audioSystem;
+        m_audioSystem = nullptr;
         return false;
     }
-    m_renderer = SDL_CreateRenderer(
-        m_window,
-        -1, // usually -1. make decision by SDL
-        SDL_RENDERER_ACCELERATED |
-        SDL_RENDERER_PRESENTVSYNC );//  SDL_RENDERER_PRESENTVSYNC 提前打开垂直同步
-    if( !m_renderer ) 
-    {
-        SDL_Log("SDL Renderer Create Failed: %s",SDL_GetError());
-    }
+    
 
     LoadData();
 
-    // SDL_GetWindowSize(m_window,&m_data.Width,&m_data.Height);
-    // m_data.Width = props.Width;
-    // m_data.Height = props.Height;
-    // m_data.title = props.Title;
+    m_ticksCount = SDL_GetTicks();
+
     return true;
 }
 
@@ -70,11 +74,9 @@ void Game::RunLoop()
 void Game::ShutDown()
 {
     UnloadData();
-    IMG_Quit();
-
     SDL_Log("Game ShutDown");
-    SDL_DestroyWindow(m_window);
-    SDL_DestroyRenderer(m_renderer);
+    if(m_renderer) m_renderer->ShutDown();
+    
     SDL_Quit();
 }
 
@@ -113,56 +115,61 @@ void Game::RemoveActor(Actor * actor )
     return ;
 }
 
-SDL_Texture *Game::GetTexture(const std::string &filepath)
-{
-    if( m_textures.count(filepath) ) return m_textures[filepath];
-
-    SDL_Texture* newtexture = LoadTexture(filepath);
-    if( !newtexture ) 
-    {
-        SDL_Log("GetTexture faild!:file %s" ,filepath.c_str() );
-        return newtexture;
-    }
-    m_textures[filepath]  = newtexture;
-
-    return newtexture;
-}
 
 void Game::LoadData()
 {
-    m_ship = new Ship(this);
-    m_ship->SetPosition(Vector2(100.f,384.f));
-    m_ship->SetScale(1.5f);
+    m_renderer->SetAmbientLight(Vector3(0.2f,0.2f,0.2f));
+    auto& light =  m_renderer->GetDirectionalLight();
+    light.m_diffuseColor = Vector3(0.76f,0.78f,0.82f);
+    light.m_dirction = Vector3(0.0f, -0.707f, -0.707f);
+    light.m_specColor = Vector3(0.8f, 0.8f, 0.8f);
 
-    Actor* temp = new Actor(this);
-    temp->SetPosition(Vector2(512.f,384.f));
+    // Create Cube
+    Actor* a = new Actor(this);
+    a->SetPosition(Vector3 ( 200.f,75.f,0.f));
+    a->SetScale(1000.f);
+    auto rotQ = Quaternion(Vector3::UnitY,-Math::PiOver2);
+    rotQ = Quaternion::Concatenate(
+        rotQ,
+        Quaternion(Vector3::UnitZ,Math::Pi + Math::Pi/4.f));
+    a->SetRotation(rotQ);
+    auto meshcomp = new MeshComponent(a);
+    meshcomp->SetMesh(m_renderer->GetMesh("Assets/Cube.gpmesh"));
+    
+    // Create Sphere
+    a = new Actor(this);
+    a->SetPosition(Vector3 ( 200.f,-75.f,0.f));
+    a->SetScale(3.f);
+    meshcomp = new MeshComponent(a);
+    meshcomp->SetMesh(m_renderer->GetMesh("Assets/Sphere.gpmesh"));
 
-
-    constexpr int asteroidnum = 20;
-    for(int i = 0; i<asteroidnum;i++)
+    //floor    
+    const float start = -1250.f;
+    const float size = 250.f;
+    for(int i = 0;i<10;i++)
     {
-        new Asteroid(this);
+        for(int j = 0; j<10;j++)
+        {
+            a = new Plane_A(this);
+            a->SetPosition(Vector3(start + i * size , start + j*size,-100.f));
+        }
     }
+    
+    
+    m_camera = new CameraActor(this);
 
-    // bg 1
-    auto* bg = new BGSpriteComponent(temp,10);
-    bg->SetScreenSize(Vector2(1024.f,768.f));
-    std::vector<SDL_Texture*>  bgtexs={
-        GetTexture("Assets/Farback01.png"),
-		GetTexture("Assets/Farback02.png")
-    };
-    bg->SetBGTexture(bgtexs);
-    bg->SetScrollSpeed(-100.f);
+    // UI elements
+    // spirte pos in ClipWorld is same as pixel pos in window(but 0,0 is window center)
+	a = new Actor(this);
+	a->SetPosition(Vector3(-350.0f, -350.0f, 0.0f));
+	SpriteComponent* sc = new SpriteComponent(a);
+	sc->SetTexture(m_renderer->GetTexture("Assets/HealthBar.png"));
 
-    // bg 2
-    bg = new BGSpriteComponent(temp,50);
-    bg->SetScreenSize(Vector2(1024.f,768.f));
-    bgtexs={
-        GetTexture("Assets/Stars.png"),
-		GetTexture("Assets/Stars.png")
-    };
-    bg->SetBGTexture(bgtexs);
-    bg->SetScrollSpeed(-200.f);
+	a = new Actor(this);
+	a->SetPosition(Vector3(375.0f, -275.0f, 0.0f));
+	a->SetScale(0.75f);
+	sc = new SpriteComponent(a);
+	sc->SetTexture(m_renderer->GetTexture("Assets/Radar.png"));
 
 }
 
@@ -174,65 +181,12 @@ void Game::UnloadData()
         delete m_actors.back();
     }    
 
-    for(auto i:m_textures)
+    if(m_renderer)
     {
-        SDL_DestroyTexture(i.second);
+        m_renderer->UnloadData();
     }
-    m_textures.clear();
-
 }
 
-SDL_Texture *Game::LoadTexture(const std::string &path)
-{
-
-
-    SDL_Surface* suf = IMG_Load(path.c_str());
-    if(!suf)
-    {
-        SDL_Log("Load %s Failed!: %s",path.c_str(),SDL_GetError());
-        return nullptr;
-    }
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer,suf);
-    SDL_FreeSurface(suf);
-    if(!texture)
-    {
-        SDL_Log("Create Texture Failed!: %s",SDL_GetError());
-        return nullptr;
-    }
-    return texture;
-}
-
-void Game::AddSprite(SpriteComponent *sprite)
-{
-    int order = sprite->GetDrawOrder();
-    auto it = m_sprites.begin();
-    for(;it!=m_sprites.end();it++)
-    {
-        if(order<=(*it)->GetDrawOrder())
-        {
-            break;
-        }
-    }
-    m_sprites.insert(it,sprite);
-}
-
-void Game::RemoveSprite(SpriteComponent *sprite)
-{
-    auto it = std::find(m_sprites.begin(),m_sprites.end(),sprite);
-    /// cant swap & pop. we need remain the order 
-    m_sprites.erase(it);
-}
-
-Game& Game::RemoveAsteroid(Asteroid* as)
-{
-    auto it = std::find(m_asteroids.begin() , m_asteroids.end(),as);
-    if(it != m_asteroids.end())
-    {
-        m_asteroids.erase(it);
-    }
-    return *this;
-}
 
 void Game::ProcessInput()
 {
@@ -255,12 +209,10 @@ void Game::ProcessInput()
     }
 
     {
-        m_UpdatingActors = true;
         for(auto i: m_actors)
         {
             i->ProcessInput(state);
         }
-        m_UpdatingActors = false;
     }
 
 
@@ -276,6 +228,7 @@ void Game::UpdateGame()
     {
         deltatime = 0.05f;
     }
+    m_ticksCount = SDL_GetTicks();
 
     m_UpdatingActors = true;
     for(auto i:m_actors)
@@ -308,20 +261,11 @@ void Game::UpdateGame()
         }
     }
   
-    m_ticksCount = SDL_GetTicks();
 }
 
 
 void Game::GenerateOutput()
 {
-    SDL_SetRenderDrawColor(m_renderer,10,10,20,255);
-    SDL_RenderClear(m_renderer);
-    
-    for(auto i: m_sprites)
-    {
-        if(i->GetOwner().GetState() == Actor::eActive ) i->Draw(m_renderer);
-    }
-
-    SDL_RenderPresent(m_renderer); // backend buffer show(swap)
-
+    m_renderer -> Draw();
 }
+

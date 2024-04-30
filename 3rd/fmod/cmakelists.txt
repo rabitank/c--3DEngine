@@ -1,0 +1,165 @@
+macro(set_and_check _var _file)
+    set(${_var} "${_file}")
+    if(NOT EXISTS "${_file}")
+        message(FATAL_ERROR "File or directory ${_file} referenced by variable ${_var} does not exist !")
+    endif()
+endmacro()
+
+
+# Copied from `configure_package_config_file`
+macro(check_required_components _NAME)
+foreach(comp ${${_NAME}_FIND_COMPONENTS})
+if(NOT ${_NAME}_${comp}_FOUND)
+if(${_NAME}_FIND_REQUIRED_${comp})
+set(${_NAME}_FOUND FALSE)
+endif()
+endif()
+endforeach()
+endmacro()
+
+set(FMOD_FOUND TRUE)
+
+if(CMAKE_SIZEOF_VOID_P STREQUAL "4")
+set(_fmod_arch_subdir "x86")
+set(_fmod_core_arch_subdir "x86")
+elseif(CMAKE_SIZEOF_VOID_P STREQUAL "8")
+set(_fmod_arch_subdir "x64")
+set(_fmod_core_arch_subdir "x64")
+else()
+set(FMOD_FOUND FALSE)
+return()
+endif()
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+    set(_fmod_core_arch_subdir "arm64")
+endif()
+
+set(_fmod_if_need_Log "")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(_fmod_if_need_Log "L")
+endif()
+
+
+
+if(WIN32)
+set_and_check(FMOD_PREFIX       "${CMAKE_CURRENT_LIST_DIR}/win/api")
+elseif(APPLE)
+message("not support APPLE now")
+endif()
+
+
+set_and_check(FMOD_CORE_INCLUDE_DIR     "${FMOD_PREFIX}/core/inc")
+set_and_check(FMOD_FSBANK_INCLUDE_DIR   "${FMOD_PREFIX}/fsbank/inc")
+set_and_check(FMOD_STUDIO_INCLUDE_DIR   "${FMOD_PREFIX}/studio/inc")
+
+set_and_check(FMOD_CORE_LIBDIR     "${FMOD_PREFIX}/core/lib/${_fmod_core_arch_subdir}")
+set_and_check(FMOD_FSBANK_LIBDIR   "${FMOD_PREFIX}/fsbank/lib/${_fmod_arch_subdir}")
+set_and_check(FMOD_STUDIO_LIBDIR   "${FMOD_PREFIX}/studio/lib/${_fmod_core_arch_subdir}")
+
+
+set(FMOD_LIBRARIES      FMOD::core FMOD::fsbank FMOD::studio)
+set(FMOD_CORE_LIBRARY       FMOD::core)
+set(FMOD_FSBANK_LIBRARY     FMOD::fsbank)
+set(FMOD_STUDIO_LIBRARY     FMOD::studio)
+
+# All targets are created, even when some might not be requested though COMPONENTS.
+# This is done for compatibility with CMake generated SDL2-target.cmake files.
+
+
+add_library(fmod SHARED IMPORTED GLOBAL)
+
+
+set(_fmod_core_dll_library "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}.dll")
+set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}_vc.lib")
+
+if(_fmod_core_arch_subdir STREQUAL "x86" )
+    
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # using GCC
+        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/libfmod${_fmod_if_need_Log}.a")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # using msvc
+        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}_vc.lib")
+    endif()
+endif()
+
+
+if(EXISTS "${_fmod_core_library}" AND EXISTS "${_fmod_core_dll_library}")
+    if(NOT TARGET FMOD::core)
+        add_library(FMOD::core SHARED IMPORTED GLOBAL)
+        # target_include_directories(FMOD::core INTERFACE ${FMOD_CORE_INCLUDE_DIR})
+        set_target_properties(FMOD::core
+            PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${FMOD_CORE_INCLUDE_DIR}"
+                IMPORTED_IMPLIB "${_fmod_core_library}"
+                IMPORTED_LOCATION "${_fmod_core_dll_library}"
+                COMPATIBLE_INTERFACE_BOOL "FMOD_CORE_SHARED"
+                COMPATIBLE_INTERFACE_STRING "FMOD_VERSION"
+        )
+    endif()
+    set(FMOD_CORE_FOUND TRUE)
+else()
+    set(FMOD_CORE_FOUND FALSE)
+endif()
+unset(_fmod_core_library)
+unset(_fmod_core_dll_library)
+
+
+set(_fmod_fsbank_dll_library "${FMOD_FSBANK_LIBDIR}/fsbank.dll")
+set(_fmod_fsbank_library     "${FMOD_FSBANK_LIBDIR}/fsbank_vc.lib")
+
+if(EXISTS "${_fmod_fsbank_library}" AND EXISTS "${_fmod_fsbank_dll_library}")
+    if(NOT TARGET FMOD::fsbank)
+        add_library(FMOD::fsbank SHARED IMPORTED GLOBAL)
+        set_target_properties(FMOD::fsbank
+            PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${FMOD_FSBANK_INCLUDE_DIR}"
+                IMPORTED_IMPLIB "${_fmod_fsbank_library}"
+                IMPORTED_LOCATION "${_fmod_fsbank_dll_library}"
+                COMPATIBLE_INTERFACE_BOOL "FMOD_FSBANK_SHARED"
+                COMPATIBLE_INTERFACE_STRING "FMOD_VERSION"
+        )
+    endif()
+    set(FMOD_FSBANK_FOUND TRUE)
+else()
+    set(FMOD_FSBANK_FOUND FALSE)
+endif()
+unset(_fmod_fsbank_library)
+unset(_fmod_fsbank_dll_library)
+
+
+set(_fmod_studio_dll_library "${FMOD_STUDIO_LIBDIR}/fmodstudio${_fmod_if_need_Log}.dll")
+set(_fmod_studio_library     "${FMOD_STUDIO_LIBDIR}/fmodstudio${_fmod_if_need_Log}_vc.lib")
+if(_fmod_core_arch_subdir STREQUAL "x86"  OR _fmod_core_arch_subdir STREQUAL "arm64" )
+    
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # using GCC
+        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/libfmodstudio${_fmod_if_need_Log}.a")
+    endif()
+endif()
+
+if(EXISTS "${_fmod_studio_library}" AND EXISTS "${_fmod_studio_dll_library}")
+    if(NOT TARGET FMOD::studio)
+        add_library(FMOD::studio SHARED IMPORTED GLOBAL)
+        set_target_properties(FMOD::studio
+            PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${FMOD_STUDIO_INCLUDE_DIR}"
+                IMPORTED_IMPLIB "${_fmod_studio_library}"
+                IMPORTED_LOCATION "${_fmod_studio_dll_library}"
+                COMPATIBLE_INTERFACE_BOOL "FMOD_STUDIO_SHARED"
+                COMPATIBLE_INTERFACE_STRING "FMOD_VERSION"
+        )
+    endif()
+    set(FMOD_STUDIO_FOUND TRUE)
+else()
+    set(FMOD_STUDIO_FOUND FALSE)
+endif()
+unset(_fmod_studio_library)
+unset(_fmod_studio_dll_library)
+
+
+unset(_fmod_arch_subdir)
+unset(_fmod_core_arch_subdir)
+unset(_fmod_if_need_Log)
+
+message("FMOD FOUND:" ${FMOD_FOUND})
+

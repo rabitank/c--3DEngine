@@ -1,0 +1,8 @@
+macro(AddTest target_name)
+    add_executable(${target_name} ./${target_name}.cpp ${PRO_SRC_FILES}) 
+    target_link_libraries(${target_name} PRIVATE ${SDL_LIBRARIES} )
+    # WORKING_DIRECTORY 设置test 的工作目录
+    add_test(NAME ${target_name} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMAND $<TARGET_FILE:${target_name}>)
+endmacro()
+
+AddTest(utils_color)

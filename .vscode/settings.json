@@ -11,6 +11,7 @@
     "C_Cpp.intelliSenseEngine": "default",
     "files.associations": {
         "*.cpp": "cpp",
+        "*.gpmesh": "json",
         "cstdint": "cpp",
         "algorithm": "cpp",
         "atomic": "cpp",
@@ -65,10 +66,11 @@
         "new": "cpp",
         "semaphore": "cpp",
         "span": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "array": "cpp"
     },
     "clangd.arguments": [
-        "--query-driver=D:/CppMinGW/mingw64/bin/g*",
+        "--query-driver=D:\\CppMinGW\\mingw64p\\mingw64\\bin\\g*",
     ],
     // "C_Cpp.codeAnalysis.clangTidy.enabled": true,
 

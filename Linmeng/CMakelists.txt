@@ -1,14 +1,24 @@
 ### gal engin -> lib
 
-file(GLOB_RECURSE game_includes src/*.h  )
-file(GLOB_RECURSE game_src src/*.cpp )
+file(GLOB_RECURSE game_includes src/**/*.h src/*.h  )
+file(GLOB_RECURSE game_src src/**/*.cpp src/*.cpp )
 
 message("game_includes ${game_includes}")
 
-add_executable(Linmeng ./main.cpp ${game_src} ${game_includes}  )
+add_executable(Linmeng  ${game_src} ${game_includes}  )
 
 target_compile_features(Linmeng PUBLIC cxx_std_17)
-target_include_directories(Linmeng PUBLIC src pureHead)
+target_include_directories(Linmeng PUBLIC 
+    src/Actor 
+    src/AIState 
+    src/Components 
+    src/utils 
+    src/Render  
+    src/Audio
+    pureHead 
+    src
+)
+
 target_link_libraries(Linmeng PUBLIC ${3rd_LIBS})
 
 # target_precompile_headers(Linmeng PUBLIC ./pch.h)
@@ -16,3 +26,4 @@ target_link_libraries(Linmeng PUBLIC ${3rd_LIBS})
 
 message("3rd libs  ${3rd_LIBS}")
 message("SDL FOUND ${SDL2_FOUND}")
+
