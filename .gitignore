@@ -1,2 +1,7 @@
 
 cmake-build
+
+3rd/fmod/win/api/*/examples
+3rd/fmod/win/api/*/lib/*
+3rd/fmod/win/api/*/inc/*
+
