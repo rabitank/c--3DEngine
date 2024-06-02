@@ -1,5 +1,5 @@
 #include "renderer.h"
-#include "spriteComponent.h"
+#include "2DComp/spriteComponent.h"
 #include "meshComponent.h"
 #include "texture.h"
 #include "game.h"
@@ -198,7 +198,8 @@ void Renderer::Draw()
 
     for(auto&& ele:m_meshComps )
     {
-        ele->Draw(m_meshShader);
+        if(ele->GetVisible())
+            ele->Draw(m_meshShader);
     };
 
     glDisable(GL_DEPTH_TEST);

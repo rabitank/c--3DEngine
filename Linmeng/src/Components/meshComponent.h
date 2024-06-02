@@ -21,7 +21,12 @@ public:
     /// @param mesh 
     virtual void SetMesh(class Mesh* mesh) { m_mesh = mesh; };
 
+    void SetVisible(bool visible){m_visible = visible;};
+    bool GetVisible() const {return m_visible;};
+
+
 protected:
     Mesh* m_mesh;
     size_t m_textureIndex;
+    bool m_visible; 
 };  

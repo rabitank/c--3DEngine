@@ -35,11 +35,11 @@ public:
     virtual void UpdateActor(float deltatime);
     /// @brief some specific action on actor. 
     /// @attention call after Components Procees in ProcessInput
-    virtual void  ActorInput(const uint8_t* states) {}; 
+    virtual void  ActorInput( const struct InputState& states) {}; 
 
     /// @brief processInput and dispear to components
     /// @param states 
-    void ProcessInput(const uint8_t* states );
+    void ProcessInput(const struct InputState& states);
 
 
 
@@ -68,11 +68,12 @@ public:
     Actor&              SetRotation(const Quaternion& rot)   
     { 
         m_rotation = rot;
-        m_recomputeWorldTransform = false;
+        m_recomputeWorldTransform = true;
         return *this;
     };
 
     Vector3 GetForward() const { return Vector3::Transform(Vector3::UnitX,m_rotation);};
+    Vector3 GetRight() const { return Vector3::Transform(Vector3::UnitY,m_rotation);};
     
     void ComputeWorldTransform();
     const Matrix4& GetWorldTransform() const {return m_worldTransform;} ;

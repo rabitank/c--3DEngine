@@ -6,6 +6,17 @@
 #include "vertexArray.h"
 #include "texture.h"
 
+
+MeshComponent::MeshComponent(class Actor* owner)
+    :Component(owner),
+    m_mesh(nullptr),
+    m_textureIndex(0),
+    m_visible(true)
+{   
+
+    m_owner->GetGame()->GetRenderer()->AddMeshComp(this);
+
+}
 MeshComponent::~MeshComponent()
 {
     m_owner->GetGame()->GetRenderer()->RemoveMeshComp(this);
@@ -30,12 +41,3 @@ void MeshComponent::Draw(class Shader* shader)
     }
 }
 
-MeshComponent::MeshComponent(class Actor* owner)
-    :Component(owner),
-    m_mesh(nullptr),
-    m_textureIndex(0)
-{   
-
-    m_owner->GetGame()->GetRenderer()->AddMeshComp(this);
-
-}

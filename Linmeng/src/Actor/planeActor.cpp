@@ -6,6 +6,7 @@
 Plane_A::Plane_A(class Game* game)
     :Actor(game)
 {
+    SetScale(10.f);
     auto amesh = game->GetRenderer()->GetMesh("Assets/Plane.gpmesh");
     auto ameshcomp = new MeshComponent(this);
     ameshcomp->SetMesh(amesh);

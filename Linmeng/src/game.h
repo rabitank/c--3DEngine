@@ -3,7 +3,7 @@
 #include "SDL.h" 
 #include "vector.h"
 
-
+#include "soundEvent.h"
 
 extern int GAME_Width  ;
 extern int GAME_Height ;
@@ -32,6 +32,8 @@ public:
     
     class Renderer* GetRenderer() {return m_renderer;}
     class AudioSystem* GetAudioSystem() {return m_audioSystem;}
+    class InputSystem* GetInputSystem() {return m_inputSystem;}
+
 
 
 
@@ -41,12 +43,19 @@ private:
     void UpdateGame()   ;
     void GenerateOutput();
 
+    void HandleKeyDown(int key);
+
+    // temp test
+    void ChangeCamera(int mode);
 
     /// Window created by SDL 😘
     SDL_Window* m_window;    
     
     class Renderer* m_renderer;
     class AudioSystem* m_audioSystem;
+    class InputSystem* m_inputSystem;
+    
+
 
     uint32_t m_ticksCount{0};
     bool m_IsRunning{true};
@@ -58,10 +67,18 @@ private:
     /// @brief is game updating actors?
 
 
-    bool m_UpdatingActors{false};
+    bool m_updatingActors{false};
 
-    class CameraActor* m_camera{nullptr};
+    class OrbitActor*  mOrbitActor;
+	class FollowActor* mFollowActor;
+	class FPSActor* mFPSActor;
+	// class CameraActor* mSplineActor;
 
+    // class CameraActor* m_camera{nullptr};
 
+    SoundEvent m_musicEvent;
+    SoundEvent m_reverbSnap;
+
+    class DebugActor* m_debuger{nullptr};
 };
 

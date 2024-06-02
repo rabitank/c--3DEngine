@@ -4,7 +4,10 @@
 #include <fmod_errors.h>
 #include <SDL_log.h>
 #include <vector>
+
+#include "defines.h"
 unsigned int AudioSystem::s_nextID = 0;
+
 
 AudioSystem::AudioSystem(class Game* game)
     :m_game(game),
@@ -36,7 +39,7 @@ bool AudioSystem::Initialize()
     result = m_fmodSys->initialize(
         512,
         FMOD_STUDIO_INIT_NORMAL,
-        FMOD_INIT_NORMAL,
+        FMOD_INIT_CHANNEL_LOWPASS,
         nullptr
     );
 
@@ -47,8 +50,18 @@ bool AudioSystem::Initialize()
     }
 
     m_fmodSys->getCoreSystem(&m_coreFmodSys);
-    LoadBank("Assets/Master Bank.string.bank");
+    ///@attention view : https://www.fmod.com/docs/2.03/studio/getting-events-into-your-game.html about main/Master Bank
+    /// And you can only load single bank group
+    LoadBank("Assets/Master Bank.strings.bank");
     LoadBank("Assets/Master Bank.bank");
+
+    // LoadBank("Assets/AnMaster.strings.bank");
+    // LoadBank("Assets/AnMaster.bank");
+
+    // just init lisstener
+    auto viewmat = Matrix4::CreateScale(1.f);
+    viewmat *= Matrix4::CreateFromQuaternion(Quaternion(Vector3::UnitZ,0.f));
+    SetListener(viewmat);
 
     return true;
 }
@@ -64,10 +77,13 @@ void AudioSystem::Shutdown()
 
 void AudioSystem::LoadBank(const std::string& name)
 {
+    #ifdef LM_DEBUG
+    SDL_Log("Loading FMOD Bank: %s",name.c_str());
+    #endif // DEBUG
 
     if(m_banks.find(name) != m_banks.end())
     {
-        return;   
+        return;
     }
 
     FMOD::Studio::Bank* bank = nullptr;
@@ -92,16 +108,28 @@ void AudioSystem::LoadBank(const std::string& name)
         // get bank's events infomation -> map
         if(numEvents > 0 )
         {
-            std::vector<FMOD::Studio::EventDescription*> events(numEvents);
+            FMOD::Studio::EventDescription** events =  new FMOD::Studio::EventDescription*[numEvents];
+            int redvic = 0;
             // load bank eventsDescription ->  local vector
-            bank->getEventList(events.data(),numEvents,&numEvents);
-
+            
+            bank->getEventList(events,numEvents,&redvic);
+            
             char eventName[maxPathLength];
             // local vector -> eventDesciption map
             for(int i = 0; i<numEvents;i++)
             {
                 FMOD::Studio::EventDescription* e = events[i];
-                e->getPath(eventName,maxPathLength,nullptr);
+                int recived = 0;
+                // Get the path of this event (like event:/Explosion2D)
+                auto res =  e->getPath(eventName,maxPathLength,&recived);
+                #ifdef LM_DEBUG
+                SDL_Log("   Loading FMOD Event: %s  %d/%d",eventName,i,numEvents);
+                if(!e)
+                {
+                    SDL_Log("   Failed: %s",FMOD_ErrorString(res) );
+                }
+                #endif
+
                 m_events.emplace(eventName ,e);
             }
         }
@@ -117,6 +145,9 @@ void AudioSystem::LoadBank(const std::string& name)
             {
                 auto b = buses[i];
                 b->getPath(busesname,maxPathLength,nullptr);
+                #ifdef LM_DEBUG
+                    SDL_Log("   Loading FMOD buses: %s",busesname);
+                #endif // DEBUG
                 m_buses.emplace(busesname,b);
             }
         }
@@ -190,12 +221,13 @@ void AudioSystem::UnloadAllBanks()
     // but bused still exist? 
 }
 
-/// ID = 0 , means invalid
+/// pls check soundevent is valid
 SoundEvent AudioSystem::PlayEvent(const std::string& name)
 {
     unsigned int retID = 0;
     auto iter = m_events.find(name);
-    
+
+    FMOD_RESULT res;
     if(iter != m_events.end())
     {
         FMOD::Studio::EventInstance* ins = nullptr;
@@ -205,6 +237,16 @@ SoundEvent AudioSystem::PlayEvent(const std::string& name)
             s_nextID++;
             retID = s_nextID;
             m_eventInstance.emplace(retID , ins);
+            
+            res = ins->start();
+            SDL_Log("SoundEvent %s Instance Created ",name.c_str());
+            if(res!=FMOD_OK){
+                SDL_Log("Event start result:%s", FMOD_ErrorString(res));
+            }
+        }
+        else
+        {
+            SDL_Log("SoundEvent %s Instance failed! ",name.c_str());
         }
     }
 
@@ -234,6 +276,7 @@ void AudioSystem::Update(float deltatime)
     }
 
     m_fmodSys->update();
+    
 }
 
 /// Why none name namespace: view https://zhuanlan.zhihu.com/p/646385730#
@@ -257,11 +300,13 @@ namespace
 void AudioSystem::SetListener(const Matrix4& viewMatrix)
 {
     auto transform =  viewMatrix;
+
     transform.Invert();
     FMOD_3D_ATTRIBUTES listener ;
     listener.position = VecToFMOD(transform.GetTranslation()) ;
     listener.forward = VecToFMOD(transform.GetXAxis());
     listener.up = VecToFMOD(transform.GetZAxis());
+    listener.velocity = {0.f,0.f,0.f};
 
     // listener id:0 ?
     m_fmodSys->setListenerAttributes( 0 , &listener );

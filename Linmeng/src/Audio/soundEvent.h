@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "math.h"
+#include "Umath.h"
 
 /// @brief should pachaged in AudioSystem. construct SoundEvent with SoundSysten
 class SoundEvent

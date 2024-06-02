@@ -22,6 +22,7 @@ set(SYS_DLL_DIR "F:/C++Program/bin" CACHE PATH "你的一个全局动态链接�
 set(CMAKE_PREFIX_PATH "F:/C++Program/C++3rd")
 include(3rd/include_3rds.cmake)#第三方
 
+
 add_subdirectory(Linmeng)
 
 
@@ -37,3 +38,22 @@ if (PROJECT_IS_TOP_LEVEL OR ENGINE_BUILD_TEST)
     add_subdirectory(test)
 
 endif()
+
+
+#add debug macro if Debug
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message("MSVC :Set MSVC definitions" )
+    target_compile_definitions(Linmeng PRIVATE MSVC=1)
+endif()
+
+
+
+# if ( $<CONFIG:Debug> STREQUAL "Debug" )
+#     message("CONFIG:Debug " )
+#     add_compile_definitions(LM_DEBUG = 1) 
+# 	#target_compile_definitions(Linmeng PRIVATE =1)
+#     else ()
+#     message("not Debug ${CMAKE_BUILD_TYPE} " )
+# 	add_definitions(-LM_DEBUG)
+# endif ()
+

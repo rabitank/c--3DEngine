@@ -11,7 +11,7 @@ public:
     virtual ~Component();
 
     virtual void Update(float deltatime);
-    virtual void ProcessInput(const uint8_t* states) {};
+    virtual void ProcessInput(const struct InputState& states) {};
     /// @brief  an event respond of actor;'s reculculate worldtransform matrix;
     virtual void OnUpdateWorldTransform() {};
 

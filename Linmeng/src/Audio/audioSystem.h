@@ -10,7 +10,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "math.h"
+#include "Umath.h"
 #include "soundEvent.h"
 
 /// @brief forward declar of FMOD core & FMOD Studio's concept

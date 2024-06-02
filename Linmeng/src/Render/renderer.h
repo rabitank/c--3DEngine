@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "math.h"
+#include "Umath.h"
 #include "SDL.h"
 
 struct DirectionalLight

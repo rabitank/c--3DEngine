@@ -1,6 +1,7 @@
 #include "actor.h"
 #include "component.h"
 #include "game.h"
+#include "inputSystem.h"
 #include <algorithm>
 
 Actor::Actor(Game *game)
@@ -19,7 +20,7 @@ Actor::~Actor()
     m_game->RemoveActor(this);
 
     ///@attention ~Componennt call RemoveComponents so it can work
-    while(m_components.empty())
+    while(!m_components.empty())
     {
         delete m_components.back();
     }
@@ -54,7 +55,7 @@ void Actor::UpdateComponents(float deltatime)
 void Actor::UpdateActor(float deltatime)
 {}
 
-void Actor::ProcessInput(const uint8_t* states)
+void Actor::ProcessInput(const InputState& states)
 {
     if(m_state == eActive)
     {

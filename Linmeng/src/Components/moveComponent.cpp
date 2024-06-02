@@ -1,6 +1,6 @@
 #include "moveComponent.h"
 #include "actor.h"
-#include "math.h"
+#include "Umath.h"
 
 MoveComponent::MoveComponent(class Actor* owner)
 :   Component(owner),
@@ -22,10 +22,12 @@ void MoveComponent::Update(float deltatime)
         m_owner->SetRotation(rot);
     }
 
-    if(!Math::NearZero(m_forwardSpeed))
+    if(!Math::NearZero(m_forwardSpeed) || !Math::NearZero(m_strafeSpeed) )
     {
         Vector3 pos = m_owner->GetPosition();
         pos += m_owner->GetForward() * m_forwardSpeed * deltatime;
+        pos += m_owner->GetRight() * m_strafeSpeed * deltatime;
         m_owner->SetPosition(pos);
-    }    
+    }
+
 }

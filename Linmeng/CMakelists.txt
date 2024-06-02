@@ -3,27 +3,39 @@
 file(GLOB_RECURSE game_includes src/**/*.h src/*.h  )
 file(GLOB_RECURSE game_src src/**/*.cpp src/*.cpp )
 
-message("game_includes ${game_includes}")
-
-add_executable(Linmeng  ${game_src} ${game_includes}  )
+add_executable(Linmeng  ${game_src} ${game_includes} )
 
 target_compile_features(Linmeng PUBLIC cxx_std_17)
 target_include_directories(Linmeng PUBLIC 
     src/Actor 
     src/AIState 
-    src/Components 
+    src/Components
     src/utils 
     src/Render  
     src/Audio
+    src/Input
     pureHead 
     src
 )
 
 target_link_libraries(Linmeng PUBLIC ${3rd_LIBS})
 
+
+# add runtime to target build path
+macro(add_dllToTarget dll_Path)
+add_custom_command(TARGET Linmeng POST_BUILD 
+COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll_Path} $<TARGET_FILE_DIR:Linmeng>)
+message("dll :"${dll_Path} )
+endmacro(add_dllToTarget)
+foreach(_var ${3rd_LIBS_DLLS})
+add_dllToTarget(${_var})
+endforeach()
+
+message("3rd libs  ${3rd_LIBS}")
+
+
+
 # target_precompile_headers(Linmeng PUBLIC ./pch.h)
 
 
-message("3rd libs  ${3rd_LIBS}")
-message("SDL FOUND ${SDL2_FOUND}")
 

@@ -4,7 +4,7 @@
 
 bool BFS(const Graph& graph , GraghNode* src ,const GraghNode* goal , NodeToPath& path)
 {   
-    std::queue<const GraghNode*> que;
+    std::queue<GraghNode*> que;
     que.push(src);
     path[src] = nullptr;
 
@@ -20,7 +20,7 @@ bool BFS(const Graph& graph , GraghNode* src ,const GraghNode* goal , NodeToPath
             // 已有的路径不更改 . 同时避免成环
             if( parent == nullptr && i != src )
             {
-                path[i] == pa;
+                path[i] = pa;
                 que.push(i);
             }
 

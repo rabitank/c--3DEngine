@@ -1,5 +1,5 @@
 #pragma once
-#include "math.h"
+#include "Umath.h"
 #include <string>
 
 namespace Color

@@ -22,7 +22,7 @@ class InputComponent: public MoveComponent
 public:
     InputComponent(Actor* owner);
 
-    void ProcessInput(const uint8_t* states) override;
+    void ProcessInput(const struct InputState& states) override;
 
 
     InputComponent& SetMaxforwardSpeed(int speed) { m_maxForwardSpeed = speed; return *this;};

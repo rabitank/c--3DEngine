@@ -33,10 +33,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     set(_fmod_core_arch_subdir "arm64")
 endif()
 
-set(_fmod_if_need_Log "")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(_fmod_if_need_Log "L")
-endif()
+
 
 
 
@@ -68,30 +65,33 @@ set(FMOD_STUDIO_LIBRARY     FMOD::studio)
 add_library(fmod SHARED IMPORTED GLOBAL)
 
 
-set(_fmod_core_dll_library "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}.dll")
-set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}_vc.lib")
+set(_fmod_core_dll_library "${FMOD_CORE_LIBDIR}/fmod.dll")
+set(_fmod_core_library_back  "_vc.lib")
+set(_fmod_core_library_pre     "${FMOD_CORE_LIBDIR}/fmod")
 
 if(_fmod_core_arch_subdir STREQUAL "x86" )
-    
+
+set(_fmod_core_library_pre     "${FMOD_CORE_LIBDIR}/fmod")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # using GCC
-        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/libfmod${_fmod_if_need_Log}.a")
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    # using msvc
-        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/fmod${_fmod_if_need_Log}_vc.lib")
+        # using GCC
+        set(_fmod_core_library_pre     "${FMOD_CORE_LIBDIR}/libfmod")
+        set(_fmod_core_library_back     ".a")
     endif()
 endif()
 
+message("_fmod_core_library : ${_fmod_core_library_pre}${_fmod_core_library_back}")
 
-if(EXISTS "${_fmod_core_library}" AND EXISTS "${_fmod_core_dll_library}")
+if(EXISTS "${_fmod_core_library_pre}${_fmod_core_library_back}" AND EXISTS "${_fmod_core_dll_library}")
     if(NOT TARGET FMOD::core)
         add_library(FMOD::core SHARED IMPORTED GLOBAL)
         # target_include_directories(FMOD::core INTERFACE ${FMOD_CORE_INCLUDE_DIR})
         set_target_properties(FMOD::core
             PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${FMOD_CORE_INCLUDE_DIR}"
-                IMPORTED_IMPLIB "${_fmod_core_library}"
-                IMPORTED_LOCATION "${_fmod_core_dll_library}"
+                IMPORTED_IMPLIB "${_fmod_core_library_pre}${_fmod_core_library_back}"
+                IMPORTED_IMPLIB_DEBUG "${_fmod_core_library_pre}L${_fmod_core_library_back}"
+                IMPORTED_LOCATION "${FMOD_CORE_LIBDIR}/fmod.dll"
+                IMPORTED_LOCATION_DEBUG "${FMOD_CORE_LIBDIR}/fmodL.dll"
                 COMPATIBLE_INTERFACE_BOOL "FMOD_CORE_SHARED"
                 COMPATIBLE_INTERFACE_STRING "FMOD_VERSION"
         )
@@ -127,13 +127,19 @@ unset(_fmod_fsbank_library)
 unset(_fmod_fsbank_dll_library)
 
 
-set(_fmod_studio_dll_library "${FMOD_STUDIO_LIBDIR}/fmodstudio${_fmod_if_need_Log}.dll")
-set(_fmod_studio_library     "${FMOD_STUDIO_LIBDIR}/fmodstudio${_fmod_if_need_Log}_vc.lib")
+set(_fmod_studio_dll_library "${FMOD_STUDIO_LIBDIR}/fmodstudio.dll")
+set(_fmod_studio_library     "${FMOD_STUDIO_LIBDIR}/fmodstudio_vc.lib")
+set(_fmod_studio_library_pre     "${FMOD_STUDIO_LIBDIR}/fmodstudio")
+set(_fmod_studio_library_back     "_vc.lib")
+
 if(_fmod_core_arch_subdir STREQUAL "x86"  OR _fmod_core_arch_subdir STREQUAL "arm64" )
     
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # using GCC
-        set(_fmod_core_library     "${FMOD_CORE_LIBDIR}/libfmodstudio${_fmod_if_need_Log}.a")
+        set(_fmod_studio_library     "${FMOD_CORE_LIBDIR}/libfmodstudio.a")
+        set(_fmod_studio_library_pre     "${FMOD_CORE_LIBDIR}/libfmodstudio")
+        set(_fmod_studio_library_back     ".a")
+
     endif()
 endif()
 
@@ -143,8 +149,10 @@ if(EXISTS "${_fmod_studio_library}" AND EXISTS "${_fmod_studio_dll_library}")
         set_target_properties(FMOD::studio
             PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${FMOD_STUDIO_INCLUDE_DIR}"
-                IMPORTED_IMPLIB "${_fmod_studio_library}"
+                IMPORTED_IMPLIB "${_fmod_studio_library_pre}${_fmod_studio_library_back}"
+                IMPORTED_IMPLIB_DEBUG "${_fmod_studio_library_pre}L${_fmod_studio_library_back}"
                 IMPORTED_LOCATION "${_fmod_studio_dll_library}"
+                IMPORTED_LOCATION_DEBUG "${FMOD_STUDIO_LIBDIR}/fmodstudioL.dll"
                 COMPATIBLE_INTERFACE_BOOL "FMOD_STUDIO_SHARED"
                 COMPATIBLE_INTERFACE_STRING "FMOD_VERSION"
         )
@@ -159,7 +167,6 @@ unset(_fmod_studio_dll_library)
 
 unset(_fmod_arch_subdir)
 unset(_fmod_core_arch_subdir)
-unset(_fmod_if_need_Log)
 
 message("FMOD FOUND:" ${FMOD_FOUND})
 
